@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pond Drain Pump Sizing Calculator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #e9f7ef;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Drain Pump Sizing</h1>
+
+  <label for="length">Pond Length (m):</label>
+  <input type="number" id="length" placeholder="e.g. 10" min="0" step="0.1">
+
+  <label for="width">Pond Width (m):</label>
+  <input type="number" id="width" placeholder="e.g. 5" min="0" step="0.1">
+
+  <label for="depth">Pond Depth (m):</label>
+  <input type="number" id="depth" placeholder="e.g. 2" min="0" step="0.1">
+
+  <label for="percent">Drain-down Percentage (%):</label>
+  <select id="percent">
+    <option value="10">10 %</option>
+    <option value="12.5">12.5 %</option>
+    <option value="15">15 %</option>
+    <option value="17.5">17.5 %</option>
+    <option value="20">20 %</option>
+  </select>
+
+  <label for="hours">Time to Drain (hours):</label>
+  <input type="number" id="hours" placeholder="e.g. 4" min="0" step="0.1">
+
+  <label for="head">Total Head (m):</label>
+  <input type="number" id="head" placeholder="e.g. 3" min="0" step="0.1">
+
+  <button onclick="calculateHP()">Calculate HP</button>
+
+  <div id="result" style="display:none;"></div>
+
+  <script>
+    function calculateHP() {
+      // read inputs
+      const L = parseFloat(document.getElementById('length').value);
+      const W = parseFloat(document.getElementById('width').value);
+      const D = parseFloat(document.getElementById('depth').value);
+      const pct = parseFloat(document.getElementById('percent').value);
+      const hrs = parseFloat(document.getElementById('hours').value);
+      const head = parseFloat(document.getElementById('head').value);
+
+      // basic validation
+      if (isNaN(L) || isNaN(W) || isNaN(D) || isNaN(pct) || isNaN(hrs) || isNaN(head) || hrs <= 0) {
+        alert('Please fill in all fields with valid positive numbers.');
+        return;
+      }
+
+      // compute pond volume (m3)
+      const volume_m3 = L * W * D;
+      // volume to drain (m3)
+      const drain_m3 = volume_m3 * (pct / 100);
+      // convert to liters
+      const drain_L = drain_m3 * 1000;
+      // time in minutes
+      const time_min = hrs * 60;
+      // flow in L/min
+      const flow_LPM = drain_L / time_min;
+      // HP ≈ (Flow_LPM × Head_m) / 450
+      const hp = (flow_LPM * head) / 450;
+
+      // display results
+      const resDiv = document.getElementById('result');
+      resDiv.style.display = 'block';
+      resDiv.innerHTML = `
+        Required flow: <strong>${flow_LPM.toFixed(1)} L/min</strong><br>
+        Recommended pump power: <strong>${hp.toFixed(2)} HP</strong>
+      `;
+    }
+  </script>
+
+</body>
+</html>
